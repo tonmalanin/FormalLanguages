@@ -11,6 +11,8 @@ using json = nlohmann::json;
 
 const std::string kEpsilon = "ε";
 
+std::string int_to_str(size_t n);
+
 class Automaton {
  private:
   struct Edge {
@@ -34,4 +36,6 @@ class Automaton {
   explicit operator json() const;
 
   void remove_epsilon_transitions();
+
+  void make_determined();
 };
