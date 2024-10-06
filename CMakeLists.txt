@@ -7,4 +7,8 @@ set(CMAKE_EXECUTABLE_SUFFIX ".exe")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+include_directories(include)
 add_executable(fl main.cpp)
+
+add_subdirectory(src)
+target_link_libraries(fl Automaton MakeDetermined)
