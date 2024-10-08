@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <json.hpp>
 #include <map>
 #include <set>
@@ -28,7 +28,8 @@ class Automaton {
   std::vector<bool> is_final;
   std::vector<std::set<Edge>> delta;
 
-  void add_transitions(size_t state, std::vector<bool>& used, std::set<Edge>& transitions);
+  void add_transitions(size_t state, std::vector<bool>& used,
+                       std::set<Edge>& transitions);
 
  public:
   Automaton() = default;

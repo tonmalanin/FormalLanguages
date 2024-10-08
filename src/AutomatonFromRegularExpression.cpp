@@ -14,23 +14,39 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
         ++bracket_count;
       } else if (sym == ')') {
         --bracket_count;
-      }
-      if (bracket_count == 0) {
+      } else if (bracket_count == 0 && sym == '|') {
         current_step = 2;
-      }
-    } else if (current_step == 2) {
-      if (sym == '*' or sym == '+') {
-        part1 += sym;
-      } else if (sym == '|') {
+        part1.pop_back();
         operation = Operation::Union;
-        current_step = 3;
-      } else {
-        operation = Operation::Concatenation;
-        part2 += sym;
-        current_step = 3;
       }
     } else {
       part2 += sym;
+    }
+  }
+  if (part2.empty()) {
+    part1 = "";
+    for (auto sym : reg_exp) {
+      if (current_step == 1) {
+        part1 += sym;
+        if (sym == '(') {
+          ++bracket_count;
+        } else if (sym == ')') {
+          --bracket_count;
+        }
+        if (bracket_count == 0) {
+          current_step = 2;
+        }
+      } else if (current_step == 2) {
+        if (sym == '*' or sym == '+') {
+          part1 += sym;
+        } else {
+          operation = Operation::Concatenation;
+          part2 += sym;
+          current_step = 3;
+        }
+      } else {
+        part2 += sym;
+      }
     }
   }
   Automaton automaton1;
@@ -49,7 +65,7 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
     } else if (part1.back() == ')') {
       part1 = part1.substr(1, part1.size() - 2);
       automaton1 = create_from_reg_exp(part1);
-    }else {
+    } else {
       automaton1 = Automaton(part1);
     }
   } else {

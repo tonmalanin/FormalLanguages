@@ -1,17 +1,18 @@
 #include <../include/Automaton.h>
 
-void Automaton::add_transitions(size_t state, std::vector<bool>& used, std::set<Edge>& new_transitions) {
+void Automaton::add_transitions(size_t state, std::vector<bool>& used,
+                                std::set<Edge>& new_transitions) {
   used[state] = true;
   for (auto& edge : delta[state]) {
     if (edge.symbol == kEpsilon) {
       if (!used[edge.dest]) {
         add_transitions(edge.dest, used, new_transitions);
       }
+      if (is_final[edge.dest]) {
+        is_final[state] = true;
+      }
     } else {
       new_transitions.insert(edge);
-    }
-    if (is_final[edge.dest]) {
-      is_final[state] = true;
     }
   }
 }
@@ -24,7 +25,7 @@ void Automaton::remove_epsilon_transitions() {
     used.resize(state_num, false);
     transitions.clear();
     add_transitions(i, used, transitions);
-    for (auto& edge: transitions) {
+    for (auto& edge : transitions) {
       delta[i].insert(edge);
     }
   }
@@ -51,7 +52,7 @@ void Automaton::make_determined() {
     new_delta.emplace_back();
     std::map<std::string, std::set<size_t>> transitions;
     for (auto elem : states[h]) {
-      for (const Edge& edge : delta[elem]) {
+      for (auto& edge : delta[elem]) {
         if (transitions.contains(edge.symbol)) {
           transitions[edge.symbol].insert(edge.dest);
         } else {

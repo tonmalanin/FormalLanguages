@@ -60,30 +60,17 @@ Automaton::operator json() const {
 }
 
 Automaton& Automaton::unite(const Automaton& other) {
-  std::vector<std::set<Edge>> new_delta(2 + state_num + other.state_num);
-  new_delta[0] = {{start + 1, kEpsilon}, {other.start + 1 + state_num, kEpsilon}};
-  for (size_t i = 0; i < state_num; ++i) {
-    for (auto& edge : delta[i]) {
-      new_delta[i + 1].insert({edge.dest + 1, edge.symbol});
-    }
-    if (is_final[i]) {
-      new_delta[i + 1].insert({state_num + other.state_num + 1, kEpsilon});
-    }
-  }
   for (size_t i = 0; i < other.state_num; ++i) {
+    delta.emplace_back();
     for (auto& edge : other.delta[i]) {
-      new_delta[i + 1 + state_num].insert({edge.dest + state_num + 1, edge.symbol});
-    }
-    if (other.is_final[i]) {
-      new_delta[i + 1 + state_num].insert({state_num + other.state_num + 1, kEpsilon});
+      delta[i + state_num].insert({edge.dest + state_num, edge.symbol});
     }
   }
-  start = 0;
-  state_num += 2 + other.state_num;
-  is_final.clear();
-  is_final.resize(state_num, false);
-  is_final.back() = true;
-  delta = new_delta;
+  delta[start].insert({state_num + other.start, kEpsilon});
+  for (size_t i = 0; i < other.state_num; ++i) {
+    is_final.push_back(other.is_final[i]);
+  }
+  state_num += other.state_num;
   return *this;
 }
 
@@ -91,38 +78,29 @@ Automaton& Automaton::concatenate(const Automaton& other) {
   for (size_t i = 0; i < other.state_num; ++i) {
     delta.emplace_back();
     for (auto& edge : other.delta[i]) {
-      delta.back().insert({edge.dest + state_num, edge.symbol});
-    }
-    if (other.is_final[i]) {
-      delta.back().insert({state_num + other.state_num, kEpsilon});
+      delta[i + state_num].insert({edge.dest + state_num, edge.symbol});
     }
   }
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
       delta[i].insert({other.start + state_num, kEpsilon});
+      is_final[i] = false;
     }
   }
-  delta.emplace_back();
-  state_num += 1 + other.state_num;
-  is_final.clear();
-  is_final.resize(state_num, false);
-  is_final.back() = true;
+  for (size_t i = 0; i < other.state_num; ++i) {
+    is_final.push_back(other.is_final[i]);
+  }
+  state_num += other.state_num;
   return *this;
 }
 
 Automaton& Automaton::enclose() {
-  delta[start].insert({state_num, kEpsilon});
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
       delta[i].insert({start, kEpsilon});
-      delta[i].insert({state_num, kEpsilon});
     }
   }
-  delta.emplace_back();
-  ++state_num;
-  is_final.clear();
-  is_final.resize(state_num, false);
-  is_final.back() = true;
+  is_final[start] = true;
   return *this;
 }
 

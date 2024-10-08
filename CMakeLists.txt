@@ -11,4 +11,4 @@ include_directories(include)
 add_executable(fl main.cpp)
 
 add_subdirectory(src)
-target_link_libraries(fl Automaton MakeDetermined)
+target_link_libraries(fl Automaton MakeDetermined AutomatonFromRegularExpression)
