@@ -23,10 +23,11 @@ class Automaton {
     auto operator<=>(const Edge& other) const = default;
   };
 
-  size_t start;
+  std::vector<size_t> start;
   size_t state_num;
   std::vector<bool> is_final;
   std::vector<std::set<Edge>> delta;
+  std::set<std::string> alphabet;
 
   void add_transitions(size_t state, std::vector<bool>& used,
                        std::set<Edge>& transitions);
@@ -59,6 +60,10 @@ class Automaton {
   Automaton& concatenate(const Automaton& other);
 
   Automaton& enclose();
+
+  void reverse();
+
+  void make_minimal();
 };
 
 Automaton create_from_reg_exp(const std::string& reg_exp);

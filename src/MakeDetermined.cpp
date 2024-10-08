@@ -44,20 +44,22 @@ void Automaton::remove_epsilon_transitions() {
 
 void Automaton::make_determined() {
   std::vector<std::set<size_t>> states;
-  states.push_back({start});
+  states.emplace_back();
+  for (auto state: start) {
+    states[0].insert(state);
+  }
   size_t h = 0;
   size_t t = 1;
   std::vector<std::set<Edge>> new_delta;
   while (h != t) {
     new_delta.emplace_back();
     std::map<std::string, std::set<size_t>> transitions;
+    for (auto& sym : alphabet) {
+      transitions[sym] = {};
+    }
     for (auto elem : states[h]) {
       for (auto& edge : delta[elem]) {
-        if (transitions.contains(edge.symbol)) {
-          transitions[edge.symbol].insert(edge.dest);
-        } else {
-          transitions[edge.symbol] = {edge.dest};
-        }
+        transitions[edge.symbol].insert(edge.dest);
       }
     }
     for (auto& elem : transitions) {
@@ -84,7 +86,7 @@ void Automaton::make_determined() {
       new_final[i] = (new_final[i] || is_final[state]);
     }
   }
-  start = 0;
+  start = {0};
   state_num = t;
   is_final = new_final;
   delta = new_delta;

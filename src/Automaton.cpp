@@ -6,17 +6,18 @@ Automaton::Automaton(const json& j) : state_num(0) {
     states[s] = state_num;
     ++state_num;
   }
-  start = states[j["s0"]];
+  start = {states[j["s0"]]};
   is_final.resize(state_num, false);
   for (std::string s : j["final"]) {
     is_final[states[s]] = true;
   }
   delta.resize(state_num);
   for (json edge : j["delta"]) {
-    size_t from = states[edge["from"]];
-    size_t to = states[edge["to"]];
     std::string sym = edge["sym"];
-    delta[from].insert({to, sym});
+    delta[states[edge["from"]]].insert({states[edge["to"]], edge["sym"]});
+    if (sym != kEpsilon) {
+      alphabet.insert(sym);
+    }
   }
 }
 
@@ -35,7 +36,7 @@ std::string int_to_str(size_t n) {
 
 Automaton::operator json() const {
   json j;
-  j["s0"] = int_to_str(start);
+  j["s0"] = int_to_str(start[0]);
   j["states"] = std::vector<std::string>();
   for (size_t i = 0; i < state_num; ++i) {
     j["states"].push_back(int_to_str(i));
@@ -66,11 +67,14 @@ Automaton& Automaton::unite(const Automaton& other) {
       delta[i + state_num].insert({edge.dest + state_num, edge.symbol});
     }
   }
-  delta[start].insert({state_num + other.start, kEpsilon});
+  delta[start[0]].insert({state_num + other.start[0], kEpsilon});
   for (size_t i = 0; i < other.state_num; ++i) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
+  for (auto& sym: other.alphabet) {
+    alphabet.insert(sym);
+  }
   return *this;
 }
 
@@ -83,7 +87,7 @@ Automaton& Automaton::concatenate(const Automaton& other) {
   }
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
-      delta[i].insert({other.start + state_num, kEpsilon});
+      delta[i].insert({other.start[0] + state_num, kEpsilon});
       is_final[i] = false;
     }
   }
@@ -91,21 +95,27 @@ Automaton& Automaton::concatenate(const Automaton& other) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
+  for (auto& sym: other.alphabet) {
+    alphabet.insert(sym);
+  }
   return *this;
 }
 
 Automaton& Automaton::enclose() {
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
-      delta[i].insert({start, kEpsilon});
+      delta[i].insert({start[0], kEpsilon});
     }
   }
-  is_final[start] = true;
+  is_final[start[0]] = true;
   return *this;
 }
 
 Automaton::Automaton(const std::string& sym)
-    : start(0), state_num(2), is_final({false, true}) {
+    : start({0}), state_num(2), is_final({false, true}) {
   delta.resize(2);
   delta[0].insert({1, sym});
+  if (sym != kEpsilon) {
+    alphabet.insert(sym);
+  }
 }
