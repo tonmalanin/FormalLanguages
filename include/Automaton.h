@@ -38,4 +38,10 @@ class Automaton {
   void remove_epsilon_transitions();
 
   void make_determined();
+
+  Automaton& unite(const Automaton& other);
+
+  Automaton& concatenate(const Automaton& other);
+
+  Automaton& enclose();
 };

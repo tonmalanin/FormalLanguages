@@ -50,11 +50,78 @@ Automaton::operator json() const {
   for (size_t i = 0; i < state_num; ++i) {
     json edge;
     edge["from"] = int_to_str(i);
-    for (const Edge& elem : delta[i]) {
+    for (auto& elem : delta[i]) {
       edge["to"] = int_to_str(elem.dest);
       edge["sym"] = elem.symbol;
       j["delta"].push_back(edge);
     }
   }
   return j;
+}
+
+Automaton& Automaton::unite(const Automaton& other) {
+  std::vector<std::set<Edge>> new_delta;
+  new_delta.push_back({{start, kEpsilon}, {other.start, kEpsilon}});
+  for (size_t i = 0; i < state_num; ++i) {
+    new_delta.emplace_back();
+    for (auto& edge : delta[i]) {
+      new_delta.back().insert({edge.dest + 1, edge.symbol});
+    }
+    if (is_final[i]) {
+      new_delta.back().insert({state_num + other.state_num + 1, kEpsilon});
+    }
+  }
+  for (size_t i = 0; i < other.state_num; ++i) {
+    new_delta.emplace_back();
+    for (auto& edge : other.delta[i]) {
+      new_delta.back().insert({edge.dest + state_num + 1, edge.symbol});
+    }
+    if (other.is_final[i]) {
+      new_delta.back().insert({state_num + other.state_num + 1, kEpsilon});
+    }
+  }
+  start = 0;
+  state_num += 2 + other.state_num;
+  is_final.clear();
+  is_final.resize(state_num, false);
+  is_final.back() = true;
+  delta = new_delta;
+  return *this;
+}
+
+Automaton& Automaton::concatenate(const Automaton& other) {
+  for (size_t i = 0; i < other.state_num; ++i) {
+    delta.emplace_back();
+    for (auto& edge : other.delta[i]) {
+      delta.back().insert({edge.dest + state_num, edge.symbol});
+    }
+    if (other.is_final[i]) {
+      delta.back().insert({state_num + other.state_num, kEpsilon});
+    }
+  }
+  for (size_t i = 0; i < state_num; ++i) {
+    if (is_final[i]) {
+      delta[i].insert({other.start + state_num, kEpsilon});
+    }
+  }
+  state_num += 1 + other.state_num;
+  is_final.clear();
+  is_final.resize(state_num, false);
+  is_final.back() = true;
+  return *this;
+}
+
+Automaton& Automaton::enclose() {
+  delta[start].insert({state_num, kEpsilon});
+  for (size_t i = 0; i < state_num; ++i) {
+    if (is_final[i]) {
+      delta[i].insert({start, kEpsilon});
+      delta[start].insert({state_num, kEpsilon});
+    }
+  }
+  ++state_num;
+  is_final.clear();
+  is_final.resize(state_num, false);
+  is_final.back() = true;
+  return *this;
 }
