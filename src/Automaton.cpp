@@ -60,24 +60,22 @@ Automaton::operator json() const {
 }
 
 Automaton& Automaton::unite(const Automaton& other) {
-  std::vector<std::set<Edge>> new_delta;
-  new_delta.push_back({{start, kEpsilon}, {other.start, kEpsilon}});
+  std::vector<std::set<Edge>> new_delta(2 + state_num + other.state_num);
+  new_delta[0] = {{start + 1, kEpsilon}, {other.start + 1 + state_num, kEpsilon}};
   for (size_t i = 0; i < state_num; ++i) {
-    new_delta.emplace_back();
     for (auto& edge : delta[i]) {
-      new_delta.back().insert({edge.dest + 1, edge.symbol});
+      new_delta[i + 1].insert({edge.dest + 1, edge.symbol});
     }
     if (is_final[i]) {
-      new_delta.back().insert({state_num + other.state_num + 1, kEpsilon});
+      new_delta[i + 1].insert({state_num + other.state_num + 1, kEpsilon});
     }
   }
   for (size_t i = 0; i < other.state_num; ++i) {
-    new_delta.emplace_back();
     for (auto& edge : other.delta[i]) {
-      new_delta.back().insert({edge.dest + state_num + 1, edge.symbol});
+      new_delta[i + 1 + state_num].insert({edge.dest + state_num + 1, edge.symbol});
     }
     if (other.is_final[i]) {
-      new_delta.back().insert({state_num + other.state_num + 1, kEpsilon});
+      new_delta[i + 1 + state_num].insert({state_num + other.state_num + 1, kEpsilon});
     }
   }
   start = 0;
@@ -104,6 +102,7 @@ Automaton& Automaton::concatenate(const Automaton& other) {
       delta[i].insert({other.start + state_num, kEpsilon});
     }
   }
+  delta.emplace_back();
   state_num += 1 + other.state_num;
   is_final.clear();
   is_final.resize(state_num, false);
@@ -116,12 +115,19 @@ Automaton& Automaton::enclose() {
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
       delta[i].insert({start, kEpsilon});
-      delta[start].insert({state_num, kEpsilon});
+      delta[i].insert({state_num, kEpsilon});
     }
   }
+  delta.emplace_back();
   ++state_num;
   is_final.clear();
   is_final.resize(state_num, false);
   is_final.back() = true;
   return *this;
+}
+
+Automaton::Automaton(const std::string& sym)
+    : start(0), state_num(2), is_final({false, true}) {
+  delta.resize(2);
+  delta[0].insert({1, sym});
 }

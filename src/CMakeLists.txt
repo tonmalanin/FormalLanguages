@@ -1,2 +1,3 @@
 add_library(Automaton SHARED Automaton.cpp)
 add_library(MakeDetermined SHARED MakeDetermined.cpp)
+add_library(AutomatonFromRegularExpression SHARED AutomatonFromRegularExpression.cpp)

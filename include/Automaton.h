@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <algorithm>
 #include <json.hpp>
 #include <map>
@@ -9,7 +10,7 @@
 
 using json = nlohmann::json;
 
-const std::string kEpsilon = "ε";
+const std::string kEpsilon = "z";
 
 std::string int_to_str(size_t n);
 
@@ -27,10 +28,23 @@ class Automaton {
   std::vector<bool> is_final;
   std::vector<std::set<Edge>> delta;
 
-  void add_transitions(size_t state, std::vector<bool>& used,
-                       std::set<Edge>& new_transitions);
+  void add_transitions(size_t state, std::vector<bool>& used, std::set<Edge>& transitions);
 
  public:
+  Automaton() = default;
+
+  Automaton(const Automaton& other) = default;
+
+  Automaton& operator=(const Automaton& other) = default;
+
+  ~Automaton() = default;
+
+  Automaton(Automaton&& other) = default;
+
+  Automaton& operator=(Automaton&& other) = default;
+
+  explicit Automaton(const std::string& sym);
+
   explicit Automaton(const json& j);
 
   explicit operator json() const;
@@ -45,3 +59,5 @@ class Automaton {
 
   Automaton& enclose();
 };
+
+Automaton create_from_reg_exp(const std::string& reg_exp);
