@@ -10,7 +10,7 @@
 
 using json = nlohmann::json;
 
-const std::string kEpsilon = "z";
+const std::string kEpsilon = "#";
 
 std::string int_to_str(size_t n);
 
