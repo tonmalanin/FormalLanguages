@@ -45,7 +45,7 @@ void Automaton::remove_epsilon_transitions() {
 void Automaton::make_determined() {
   std::vector<std::set<size_t>> states;
   states.emplace_back();
-  for (auto state: start) {
+  for (auto state : start) {
     states[0].insert(state);
   }
   size_t h = 0;

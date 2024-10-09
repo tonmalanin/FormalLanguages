@@ -39,5 +39,3 @@ TEST_F(AutomatonTestCase, MakeMinimalFromOdd) {
   automaton.remove_epsilon_transitions();
   EXPECT_NO_THROW(automaton.make_minimal());
 }
-
-

@@ -72,7 +72,7 @@ Automaton& Automaton::unite(const Automaton& other) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
-  for (auto& sym: other.alphabet) {
+  for (auto& sym : other.alphabet) {
     alphabet.insert(sym);
   }
   return *this;
@@ -95,7 +95,7 @@ Automaton& Automaton::concatenate(const Automaton& other) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
-  for (auto& sym: other.alphabet) {
+  for (auto& sym : other.alphabet) {
     alphabet.insert(sym);
   }
   return *this;
