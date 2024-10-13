@@ -11,10 +11,12 @@ Automaton::Automaton(const json& json_object) : state_num(0) {
   for (std::string s : json_object["final"]) {
     is_final[states[s]] = true;
   }
+
   delta.resize(state_num);
   for (json transition : json_object["delta"]) {
     std::string sym = transition["sym"];
-    delta[states[transition["from"]]].insert({states[transition["to"]], transition["sym"]});
+    delta[states[transition["from"]]].insert(
+        {states[transition["to"]], transition["sym"]});
     if (sym != kEpsilon) {
       alphabet.insert(sym);
     }
@@ -41,12 +43,14 @@ Automaton::operator json() const {
   for (size_t i = 0; i < state_num; ++i) {
     json_object["states"].push_back(int_to_str(i));
   }
+
   json_object["final"] = std::vector<std::string>();
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
       json_object["final"].push_back(int_to_str(i));
     }
   }
+
   json_object["delta"] = std::vector<json>();
   for (size_t i = 0; i < state_num; ++i) {
     json edge;
@@ -64,10 +68,12 @@ Automaton& Automaton::merge(const Automaton& other) {
   for (size_t i = 0; i < other.state_num; ++i) {
     delta.emplace_back();
     for (auto& transition : other.delta[i]) {
-      delta[i + state_num].insert({transition.dest + state_num, transition.symbol});
+      delta[i + state_num].insert(
+          {transition.dest + state_num, transition.symbol});
     }
   }
   delta[start[0]].insert({state_num + other.start[0], kEpsilon});
+
   for (size_t i = 0; i < other.state_num; ++i) {
     is_final.push_back(other.is_final[i]);
   }
@@ -82,7 +88,8 @@ Automaton& Automaton::concatenate(const Automaton& other) {
   for (size_t i = 0; i < other.state_num; ++i) {
     delta.emplace_back();
     for (auto& transition : other.delta[i]) {
-      delta[i + state_num].insert({transition.dest + state_num, transition.symbol});
+      delta[i + state_num].insert(
+          {transition.dest + state_num, transition.symbol});
     }
   }
   for (size_t i = 0; i < state_num; ++i) {
@@ -91,6 +98,7 @@ Automaton& Automaton::concatenate(const Automaton& other) {
       is_final[i] = false;
     }
   }
+
   for (size_t i = 0; i < other.state_num; ++i) {
     is_final.push_back(other.is_final[i]);
   }
@@ -120,6 +128,4 @@ Automaton::Automaton(const std::string& sym)
   }
 }
 
-void Automaton::remove_empty_word() {
-  is_final[start[0]] = false;
-}
+void Automaton::remove_empty_word() { is_final[start[0]] = false; }

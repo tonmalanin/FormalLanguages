@@ -29,6 +29,7 @@ void Automaton::remove_epsilon_transitions() {
       delta[i].insert(transition);
     }
   }
+
   for (size_t i = 0; i < state_num; ++i) {
     transitions.clear();
     for (auto& transition : delta[i]) {
@@ -62,6 +63,7 @@ void Automaton::make_deterministic() {
         transitions[transition.symbol].insert(transition.dest);
       }
     }
+
     for (auto& transition : transitions) {
       auto key = transition.first;
       auto value = transition.second;
@@ -80,6 +82,7 @@ void Automaton::make_deterministic() {
     }
     ++queue_head;
   }
+
   std::vector<bool> new_final(queue_tail, false);
   for (size_t i = 0; i < queue_tail; ++i) {
     for (auto state : states[i]) {

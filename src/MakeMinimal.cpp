@@ -11,6 +11,7 @@ void Automaton::reverse() {
       new_start.push_back(i);
     }
   }
+
   is_final.clear();
   is_final.resize(state_num, false);
   for (auto state : start) {

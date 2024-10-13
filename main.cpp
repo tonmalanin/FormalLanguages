@@ -30,11 +30,13 @@ int main(int argc, char** argv) {
       }
     }
   }
+
   if (input_type == "regexp") {
     automaton = create_from_reg_exp(argv[5]);
   } else {
     automaton = Automaton(static_cast<json>(argv[5]));
   }
+
   automaton.remove_epsilon_transitions();
   if (required_result == "dfa") {
     automaton.make_deterministic();
