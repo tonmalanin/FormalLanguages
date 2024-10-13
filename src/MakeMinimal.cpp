@@ -1,11 +1,11 @@
 #include <../include/Automaton.h>
 
 void Automaton::reverse() {
-  std::vector<std::set<Edge>> new_delta(state_num);
+  std::vector<std::set<Transition>> new_delta(state_num);
   std::vector<size_t> new_start;
   for (size_t i = 0; i < state_num; ++i) {
-    for (auto& edge : delta[i]) {
-      new_delta[edge.dest].insert({i, edge.symbol});
+    for (auto& transition : delta[i]) {
+      new_delta[transition.dest].insert({i, transition.symbol});
     }
     if (is_final[i]) {
       new_start.push_back(i);
@@ -22,7 +22,7 @@ void Automaton::reverse() {
 
 void Automaton::make_minimal() {
   this->reverse();
-  this->make_determined();
+  this->make_deterministic();
   this->reverse();
-  this->make_determined();
+  this->make_deterministic();
 }

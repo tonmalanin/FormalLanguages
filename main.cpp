@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   }
   automaton.remove_epsilon_transitions();
   if (required_result == "dfa") {
-    automaton.make_determined();
+    automaton.make_deterministic();
   } else if (required_result == "min-cdfa") {
     automaton.make_minimal();
   }

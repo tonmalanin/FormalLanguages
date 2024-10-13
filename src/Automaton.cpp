@@ -1,20 +1,20 @@
 #include <../include/Automaton.h>
 
-Automaton::Automaton(const json& j) : state_num(0) {
+Automaton::Automaton(const json& json_object) : state_num(0) {
   std::map<std::string, size_t> states;
-  for (std::string s : j["states"]) {
+  for (std::string s : json_object["states"]) {
     states[s] = state_num;
     ++state_num;
   }
-  start = {states[j["s0"]]};
+  start = {states[json_object["s0"]]};
   is_final.resize(state_num, false);
-  for (std::string s : j["final"]) {
+  for (std::string s : json_object["final"]) {
     is_final[states[s]] = true;
   }
   delta.resize(state_num);
-  for (json edge : j["delta"]) {
-    std::string sym = edge["sym"];
-    delta[states[edge["from"]]].insert({states[edge["to"]], edge["sym"]});
+  for (json transition : json_object["delta"]) {
+    std::string sym = transition["sym"];
+    delta[states[transition["from"]]].insert({states[transition["to"]], transition["sym"]});
     if (sym != kEpsilon) {
       alphabet.insert(sym);
     }
@@ -35,36 +35,36 @@ std::string int_to_str(size_t n) {
 }
 
 Automaton::operator json() const {
-  json j;
-  j["s0"] = int_to_str(start[0]);
-  j["states"] = std::vector<std::string>();
+  json json_object;
+  json_object["s0"] = int_to_str(start[0]);
+  json_object["states"] = std::vector<std::string>();
   for (size_t i = 0; i < state_num; ++i) {
-    j["states"].push_back(int_to_str(i));
+    json_object["states"].push_back(int_to_str(i));
   }
-  j["final"] = std::vector<std::string>();
+  json_object["final"] = std::vector<std::string>();
   for (size_t i = 0; i < state_num; ++i) {
     if (is_final[i]) {
-      j["final"].push_back(int_to_str(i));
+      json_object["final"].push_back(int_to_str(i));
     }
   }
-  j["delta"] = std::vector<json>();
+  json_object["delta"] = std::vector<json>();
   for (size_t i = 0; i < state_num; ++i) {
     json edge;
     edge["from"] = int_to_str(i);
-    for (auto& elem : delta[i]) {
-      edge["to"] = int_to_str(elem.dest);
-      edge["sym"] = elem.symbol;
-      j["delta"].push_back(edge);
+    for (auto& transition : delta[i]) {
+      edge["to"] = int_to_str(transition.dest);
+      edge["sym"] = transition.symbol;
+      json_object["delta"].push_back(edge);
     }
   }
-  return j;
+  return json_object;
 }
 
-Automaton& Automaton::unite(const Automaton& other) {
+Automaton& Automaton::merge(const Automaton& other) {
   for (size_t i = 0; i < other.state_num; ++i) {
     delta.emplace_back();
-    for (auto& edge : other.delta[i]) {
-      delta[i + state_num].insert({edge.dest + state_num, edge.symbol});
+    for (auto& transition : other.delta[i]) {
+      delta[i + state_num].insert({transition.dest + state_num, transition.symbol});
     }
   }
   delta[start[0]].insert({state_num + other.start[0], kEpsilon});
@@ -81,8 +81,8 @@ Automaton& Automaton::unite(const Automaton& other) {
 Automaton& Automaton::concatenate(const Automaton& other) {
   for (size_t i = 0; i < other.state_num; ++i) {
     delta.emplace_back();
-    for (auto& edge : other.delta[i]) {
-      delta[i + state_num].insert({edge.dest + state_num, edge.symbol});
+    for (auto& transition : other.delta[i]) {
+      delta[i + state_num].insert({transition.dest + state_num, transition.symbol});
     }
   }
   for (size_t i = 0; i < state_num; ++i) {

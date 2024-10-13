@@ -16,21 +16,21 @@ std::string int_to_str(size_t n);
 
 class Automaton {
  private:
-  struct Edge {
+  struct Transition {
     size_t dest;
     std::string symbol;
 
-    auto operator<=>(const Edge& other) const = default;
+    auto operator<=>(const Transition& other) const = default;
   };
 
   std::vector<size_t> start;
   size_t state_num;
   std::vector<bool> is_final;
-  std::vector<std::set<Edge>> delta;
+  std::vector<std::set<Transition>> delta;
   std::set<std::string> alphabet;
 
   void add_transitions(size_t state, std::vector<bool>& used,
-                       std::set<Edge>& transitions);
+                       std::set<Transition>& transitions);
 
  public:
   Automaton() = default;
@@ -47,15 +47,15 @@ class Automaton {
 
   explicit Automaton(const std::string& sym);
 
-  explicit Automaton(const json& j);
+  explicit Automaton(const json& json_object);
 
   explicit operator json() const;
 
   void remove_epsilon_transitions();
 
-  void make_determined();
+  void make_deterministic();
 
-  Automaton& unite(const Automaton& other);
+  Automaton& merge(const Automaton& other);
 
   Automaton& concatenate(const Automaton& other);
 
