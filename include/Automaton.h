@@ -64,6 +64,8 @@ class Automaton {
   void reverse();
 
   void make_minimal();
+
+  void remove_empty_word();
 };
 
 Automaton create_from_reg_exp(const std::string& reg_exp);

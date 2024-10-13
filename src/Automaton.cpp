@@ -119,3 +119,7 @@ Automaton::Automaton(const std::string& sym)
     alphabet.insert(sym);
   }
 }
+
+void Automaton::remove_empty_word() {
+  is_final[start[0]] = false;
+}

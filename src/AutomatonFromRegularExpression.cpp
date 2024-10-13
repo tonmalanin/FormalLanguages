@@ -59,9 +59,8 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
     } else if (left_part.back() == '+') {
       left_part.pop_back();
       left_automaton = create_from_reg_exp(left_part);
-      right_automaton = create_from_reg_exp(left_part);
-      right_automaton.enclose();
-      left_automaton.concatenate(right_automaton);
+      left_automaton.enclose();
+      left_automaton.remove_empty_word();
     } else if (left_part.back() == ')') {
       left_part = left_part.substr(1, left_part.size() - 2);
       left_automaton = create_from_reg_exp(left_part);
