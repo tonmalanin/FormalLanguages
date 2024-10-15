@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
   } else {
     automaton = Automaton(static_cast<json>(argv[5]));
   }
+  automaton.set_alphabet(argv[6]);
 
   automaton.remove_epsilon_transitions();
   if (required_result == "dfa") {

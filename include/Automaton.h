@@ -66,6 +66,8 @@ class Automaton {
   void make_minimal();
 
   void remove_empty_word();
+
+  void set_alphabet(const std::string& compressed_alphabet);
 };
 
 Automaton create_from_reg_exp(const std::string& reg_exp);

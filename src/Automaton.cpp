@@ -17,9 +17,6 @@ Automaton::Automaton(const json& json_object) : state_num(0) {
     std::string sym = transition["sym"];
     delta[states[transition["from"]]].insert(
         {states[transition["to"]], transition["sym"]});
-    if (sym != kEpsilon) {
-      alphabet.insert(sym);
-    }
   }
 }
 
@@ -78,9 +75,6 @@ Automaton& Automaton::merge(const Automaton& other) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
-  for (auto& sym : other.alphabet) {
-    alphabet.insert(sym);
-  }
   return *this;
 }
 
@@ -103,9 +97,6 @@ Automaton& Automaton::concatenate(const Automaton& other) {
     is_final.push_back(other.is_final[i]);
   }
   state_num += other.state_num;
-  for (auto& sym : other.alphabet) {
-    alphabet.insert(sym);
-  }
   return *this;
 }
 
@@ -123,9 +114,17 @@ Automaton::Automaton(const std::string& sym)
     : start({0}), state_num(2), is_final({false, true}) {
   delta.resize(2);
   delta[0].insert({1, sym});
-  if (sym != kEpsilon) {
-    alphabet.insert(sym);
-  }
 }
 
 void Automaton::remove_empty_word() { is_final[start[0]] = false; }
+
+void Automaton::set_alphabet(const std::string& compressed_alphabet) {
+  size_t pos = 0;
+  for (size_t i = 0; i < compressed_alphabet.size(); ++i) {
+    if (compressed_alphabet[i] == kEpsilon[0]) {
+      alphabet.insert(compressed_alphabet.substr(pos, i - pos));
+      pos = i + 1;
+    }
+  }
+  alphabet.insert(compressed_alphabet.substr(pos));
+}
