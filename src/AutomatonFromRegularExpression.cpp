@@ -19,7 +19,6 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
         left_part.pop_back();
         operation = Operation::Merge;
       }
-
     } else {
       right_part += sym;
     }
@@ -38,7 +37,6 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
         if (parentheses_count == 0) {
           current_step = 2;
         }
-
       } else if (current_step == 2) {
         if (sym == '*' or sym == '+') {
           left_part += sym;
@@ -47,7 +45,6 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
           right_part += sym;
           current_step = 3;
         }
-
       } else {
         right_part += sym;
       }
@@ -61,21 +58,17 @@ Automaton create_from_reg_exp(const std::string& reg_exp) {
       left_part.pop_back();
       left_automaton = create_from_reg_exp(left_part);
       left_automaton.enclose();
-
     } else if (left_part.back() == '+') {
       left_part.pop_back();
       left_automaton = create_from_reg_exp(left_part);
       left_automaton.enclose();
       left_automaton.remove_empty_word();
-
     } else if (left_part.back() == ')') {
       left_part = left_part.substr(1, left_part.size() - 2);
       left_automaton = create_from_reg_exp(left_part);
-
     } else {
       left_automaton = Automaton(left_part);
     }
-
   } else {
     left_automaton = create_from_reg_exp(left_part);
     right_automaton = create_from_reg_exp(right_part);
